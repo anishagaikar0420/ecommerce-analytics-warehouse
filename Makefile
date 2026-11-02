@@ -2,7 +2,7 @@ PYTHON ?= python3.11
 VENV := .venv
 BIN := $(VENV)/bin
 
-.PHONY: setup run test app clean
+.PHONY: setup run test app pg-up pg-down pg-run clean
 
 setup:
 	test -d $(VENV) || $(PYTHON) -m venv $(VENV)
@@ -15,6 +15,16 @@ run:
 app:
 	$(BIN)/pip install --quiet -r requirements-app.txt
 	$(BIN)/streamlit run app/streamlit_app.py
+
+pg-up:
+	docker compose up -d --wait postgres
+
+pg-down:
+	docker compose down -v
+
+# Same pipeline, plus publish the star schema to PostgreSQL and reconcile against DuckDB
+pg-run:
+	PG_DSN=postgresql://warehouse:warehouse@localhost:5433/warehouse $(BIN)/python -m src.pipeline
 
 test:
 	$(BIN)/python -m pytest -q

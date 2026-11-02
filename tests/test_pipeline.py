@@ -137,3 +137,12 @@ def test_excel_workbook_has_formulas_and_native_charts(tmp_path):
     names = z.namelist()
     assert sum(n.startswith("xl/charts/chart") for n in names) >= 6
     assert any("SUM(Monthly!B2" in z.read(n).decode() for n in names if n.startswith("xl/worksheets/sheet1"))
+
+
+@pytest.mark.skipif(not __import__("os").environ.get("PG_DSN"), reason="needs a PostgreSQL server (make pg-up; set PG_DSN)")
+def test_postgres_load_reconciles_with_duckdb(built):
+    from src.ecommerce.postgres import load_star_schema, reconcile
+    con, _ = built
+    counts = load_star_schema(con)
+    assert counts["fact_sales"] == con.execute("SELECT count(*) FROM fact_sales").fetchone()[0]
+    assert any("monthly revenue" in c for c in reconcile(con))

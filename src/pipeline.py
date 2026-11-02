@@ -1,4 +1,5 @@
 """End-to-end pipeline: generate raw -> staging -> star schema -> quality checks -> analytics CSVs."""
+import os
 import sys
 import time
 from pathlib import Path
@@ -25,6 +26,11 @@ def run(raw_dir: Path = Path("data/raw"), db_path: Path = Path("data/warehouse.d
         print(f"Built staging + star schema in {time.time() - t:.2f}s")
         results = run_checks(con, raw_dir)
         print(f"Data quality: {len(results)}/{len(results)} checks passed")
+        if os.environ.get("PG_DSN"):
+            from src.ecommerce.postgres import load_star_schema, reconcile
+            print("PostgreSQL load:", load_star_schema(con))
+            for line in reconcile(con):
+                print("  ok", line)
         counts = export_analytics(con, out_dir)
         for name, n in counts.items():
             print(f"  exported output/{name}.csv ({n} rows)")

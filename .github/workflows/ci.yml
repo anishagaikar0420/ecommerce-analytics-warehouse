@@ -7,6 +7,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: warehouse
+          POSTGRES_PASSWORD: warehouse
+          POSTGRES_DB: warehouse
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U warehouse"
+          --health-interval 5s
+          --health-retries 10
+    env:
+      PG_DSN: postgresql://warehouse:warehouse@localhost:5433/warehouse
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -14,5 +29,5 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: make setup
-      - run: make test
-      - run: make run
+      - run: make test   # includes the PostgreSQL load/reconcile test because PG_DSN is set
+      - run: make run    # also publishes the star schema to PostgreSQL and reconciles it
