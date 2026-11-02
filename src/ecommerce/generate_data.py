@@ -62,7 +62,10 @@ def generate(out_dir: Path, seed: int = 42, n_customers: int = 40000, n_products
     item_id = pay_id = 0
     for oid in range(1, n_orders + 1):
         cid = rng.randint(1, n_customers)
-        od = min(end, signup[cid] + timedelta(days=int(rng.expovariate(1 / 150))))
+        while True:  # resample (not clamp) so orders don't pile up on the final day
+            od = signup[cid] + timedelta(days=int(rng.expovariate(1 / 150)))
+            if od <= end:
+                break
         status = rng.choices(["completed", "cancelled", "returned"], [0.88, 0.07, 0.05])[0]
         orders.append([oid, cid, od.isoformat(), status])
         total = Decimal(0)

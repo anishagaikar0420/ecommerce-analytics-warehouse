@@ -5,6 +5,7 @@ from pathlib import Path
 
 import duckdb
 
+from src.ecommerce.dashboard import build_dashboard
 from src.ecommerce.etl import build_staging, build_star_schema
 from src.ecommerce.export import export_analytics
 from src.ecommerce.generate_data import generate
@@ -26,6 +27,7 @@ def run(raw_dir: Path = Path("data/raw"), db_path: Path = Path("data/warehouse.d
         counts = export_analytics(con, out_dir)
         for name, n in counts.items():
             print(f"  exported output/{name}.csv ({n} rows)")
+        print(f"  built {build_dashboard(out_dir, Path('dashboard/index.html'))}")
         for table in ["fact_sales", "dim_customer", "dim_product", "dim_date", "dim_payment_method"]:
             print(f"  {table}: {con.execute(f'SELECT count(*) FROM {table}').fetchone()[0]} rows")
     return counts

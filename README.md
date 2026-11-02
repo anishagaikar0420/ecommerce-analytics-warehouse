@@ -19,6 +19,7 @@ flowchart LR
     Q -->|any failure| X[Pipeline fails, exit 1]
     Q -->|all pass| E[export.py<br/>runs sql/analytics.sql]
     E --> O[output/*.csv<br/>12 KPI result sets]
+    O --> H[dashboard/index.html<br/>self-contained HTML charts]
 ```
 
 **Star schema** — grain of `fact_sales` is one order line.
@@ -43,6 +44,14 @@ make run     # generate data -> staging -> star schema -> quality checks -> outp
 
 The DuckDB file is written to `data/warehouse.duckdb`, so you can explore it with the DuckDB CLI or Python.
 
+## Dashboard
+
+`make run` also builds `dashboard/index.html`: a self-contained page (inline SVG, no network or BI tool needed) that charts the
+exported KPIs — revenue and gross profit, AOV, category/product/country breakdowns and a cohort-retention heatmap, with hover
+tooltips and table views. Open it in any browser. (It is a lightweight HTML preview, not a Power BI or Tableau file.)
+
+![E-commerce dashboard](docs/dashboard.png)
+
 ## Data quality checks (`src/ecommerce/quality.py`)
 
 49 checks run after the load; **any failure raises `DataQualityError` and the pipeline exits non-zero** (so CI fails).
@@ -57,7 +66,7 @@ The tests deliberately corrupt the warehouse (duplicate key, orphan fact row, de
 
 ## Analytics (`sql/analytics.sql`)
 
-12 named queries, each exported to `output/<name>.csv` by `src/ecommerce/export.py`: monthly revenue & gross profit,
+12 named queries (the `sql/` + `output/` side of the dashboard above), each exported to `output/<name>.csv` by `src/ecommerce/export.py`: monthly revenue & gross profit,
 order volume, average order value, top products, revenue by category, gross margin by category, revenue by country,
 payment method mix, cancellation/return rate, repeat purchase rate, top customers by lifetime value, and
 **monthly cohort retention** (window functions).
@@ -106,6 +115,6 @@ Home & Kitchen,1667856.87,10.1
 ## Layout
 
 ```
-src/ecommerce/   generate_data, etl, quality, export     sql/   staging, star schema, analytics
+src/ecommerce/   generate_data, etl, quality, export, dashboard     sql/   staging, star schema, analytics
 src/pipeline.py  end-to-end entry point                   tests/ pytest suite
 ```

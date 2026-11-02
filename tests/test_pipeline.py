@@ -118,3 +118,11 @@ def test_full_pipeline_end_to_end(tmp_path):
     counts = run(tmp_path / "raw", tmp_path / "w.duckdb", tmp_path / "out")
     assert counts["monthly_revenue"] > 0
     assert (tmp_path / "out" / "average_order_value.csv").exists()
+
+
+def test_dashboard_html_is_self_contained(tmp_path):
+    from src.ecommerce.dashboard import build_dashboard
+    run(tmp_path / "raw", tmp_path / "w.duckdb", tmp_path / "out")
+    html = build_dashboard(tmp_path / "out", tmp_path / "dash" / "index.html").read_text()
+    assert "__DATA__" not in html and "const D=" in html
+    assert "http://" not in html.replace("http://www.w3.org/2000/svg", "")  # no external resources
