@@ -1,0 +1,27 @@
+measure,expected_value
+Revenue,16340171.84
+Gross Profit,6857753.87
+Gross Margin %,0.419687
+Orders,52856.0
+Units Sold,141012.0
+AOV,309.14507
+Customers,29351.0
+Revenue per Customer,556.716018
+Repeat Customers,15336.0
+Repeat Rate %,0.522503
+Gross Sales,17352838.61
+Discount Amount,1012666.77
+Discount %,0.058357
+All Orders,60000.0
+Cancelled Orders,4163.0
+Cancel Rate %,0.069383
+Returned Orders,2981.0
+Return Rate %,0.049683
+Avg Units per Order,2.667852
+Revenue (calendar 2023),5664611.01
+Revenue (calendar 2024),10675560.83
+Revenue PY (evaluated for 2024),5664611.01
+Revenue YoY % (2024 vs 2023),0.884606
+Revenue YTD (at 2024-12-31),10675560.83
+Revenue (2024-12 only),950074.77
+Revenue PM (evaluated for 2024-12),1105784.47

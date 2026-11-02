@@ -1,0 +1,62 @@
+// DAX measures for the e-commerce star schema (tables: fact_sales, dim_customer, dim_product, dim_date, dim_payment_method).
+// Revenue measures count completed orders only, matching sql/analytics.sql.
+// Create all of these in a dedicated "_Measures" table (Home > Enter data > empty table), display folders in brackets.
+// Check results against powerbi/expected_values.csv. NOTE: authored without Power BI Desktop - verify each measure after pasting.
+
+// ---------- Core [Sales] ----------
+Revenue = CALCULATE ( SUM ( fact_sales[net_amount] ), fact_sales[order_status] = "completed" )
+
+Gross Sales = CALCULATE ( SUM ( fact_sales[gross_amount] ), fact_sales[order_status] = "completed" )
+
+Gross Profit =
+CALCULATE ( SUM ( fact_sales[net_amount] ) - SUM ( fact_sales[cost_amount] ), fact_sales[order_status] = "completed" )
+
+Gross Margin % = DIVIDE ( [Gross Profit], [Revenue] )
+
+Discount Amount = [Gross Sales] - [Revenue]
+
+Discount % = DIVIDE ( [Discount Amount], [Gross Sales] )
+
+Units Sold = CALCULATE ( SUM ( fact_sales[quantity] ), fact_sales[order_status] = "completed" )
+
+// ---------- Orders & customers [Customers] ----------
+Orders = CALCULATE ( DISTINCTCOUNT ( fact_sales[order_id] ), fact_sales[order_status] = "completed" )
+
+AOV = DIVIDE ( [Revenue], [Orders] )
+
+Avg Units per Order = DIVIDE ( [Units Sold], [Orders] )
+
+Customers = CALCULATE ( DISTINCTCOUNT ( fact_sales[customer_key] ), fact_sales[order_status] = "completed" )
+
+Revenue per Customer = DIVIDE ( [Revenue], [Customers] )
+
+Repeat Customers = COUNTROWS ( FILTER ( VALUES ( dim_customer[customer_key] ), [Orders] > 1 ) )
+
+Repeat Rate % = DIVIDE ( [Repeat Customers], [Customers] )
+
+// ---------- Operations [Fulfilment] ----------
+All Orders = DISTINCTCOUNT ( fact_sales[order_id] )
+
+Cancelled Orders = CALCULATE ( DISTINCTCOUNT ( fact_sales[order_id] ), fact_sales[order_status] = "cancelled" )
+
+Cancel Rate % = DIVIDE ( [Cancelled Orders], [All Orders] )
+
+Returned Orders = CALCULATE ( DISTINCTCOUNT ( fact_sales[order_id] ), fact_sales[order_status] = "returned" )
+
+Return Rate % = DIVIDE ( [Returned Orders], [All Orders] )
+
+// ---------- Time intelligence [Trends] (dim_date must be marked as the date table on full_date) ----------
+Revenue PY = CALCULATE ( [Revenue], SAMEPERIODLASTYEAR ( dim_date[full_date] ) )
+
+Revenue YoY % = DIVIDE ( [Revenue] - [Revenue PY], [Revenue PY] )
+
+Revenue YTD = TOTALYTD ( [Revenue], dim_date[full_date] )
+
+Revenue PM = CALCULATE ( [Revenue], DATEADD ( dim_date[full_date], -1, MONTH ) )
+
+Revenue MoM % = DIVIDE ( [Revenue] - [Revenue PM], [Revenue PM] )
+
+Revenue Rolling 3M Avg =
+DIVIDE ( CALCULATE ( [Revenue], DATESINPERIOD ( dim_date[full_date], MAX ( dim_date[full_date] ), -3, MONTH ) ), 3 )
+
+Revenue % of Total = DIVIDE ( [Revenue], CALCULATE ( [Revenue], ALLSELECTED () ) )

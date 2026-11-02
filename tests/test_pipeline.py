@@ -146,3 +146,20 @@ def test_postgres_load_reconciles_with_duckdb(built):
     counts = load_star_schema(con)
     assert counts["fact_sales"] == con.execute("SELECT count(*) FROM fact_sales").fetchone()[0]
     assert any("monthly revenue" in c for c in reconcile(con))
+
+
+def test_powerbi_export_and_expected_values(built, tmp_path):
+    import csv
+    from src.ecommerce.powerbi import export_powerbi
+    con, _ = built
+    rows = export_powerbi(con, tmp_path / "pbi")
+    assert rows["fact_sales"] == con.execute("SELECT count(*) FROM fact_sales").fetchone()[0]
+    exp = {r["measure"]: float(r["expected_value"]) for r in csv.DictReader((tmp_path / "pbi" / "expected_values.csv").open())}
+    revenue = con.execute("SELECT sum(net_amount) FROM fact_sales WHERE order_status = 'completed'").fetchone()[0]
+    assert abs(exp["Revenue"] - float(revenue)) < 0.01
+    assert exp["Revenue (calendar 2023)"] + exp["Revenue (calendar 2024)"] == pytest.approx(exp["Revenue"], abs=0.01)
+    # every expected measure must be defined in measures.dax
+    from pathlib import Path
+    dax = (Path(__file__).resolve().parents[1] / "powerbi" / "measures.dax").read_text()
+    for name in ["Revenue", "Gross Profit", "Gross Margin %", "Orders", "AOV", "Customers", "Repeat Rate %", "Cancel Rate %", "Discount %"]:
+        assert f"\n{name} =" in dax or dax.startswith(f"{name} =")

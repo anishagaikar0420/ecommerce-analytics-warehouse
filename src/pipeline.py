@@ -11,6 +11,7 @@ from src.ecommerce.etl import build_staging, build_star_schema
 from src.ecommerce.excel import build_workbook
 from src.ecommerce.export import export_analytics
 from src.ecommerce.generate_data import generate
+from src.ecommerce.powerbi import export_powerbi
 from src.ecommerce.quality import DataQualityError, run_checks
 
 
@@ -34,6 +35,8 @@ def run(raw_dir: Path = Path("data/raw"), db_path: Path = Path("data/warehouse.d
         counts = export_analytics(con, out_dir)
         for name, n in counts.items():
             print(f"  exported output/{name}.csv ({n} rows)")
+        export_powerbi(con, Path('powerbi'), out_dir / 'customer_cohort_retention.csv')
+        print('  exported powerbi/data/*.csv and powerbi/expected_values.csv')
         print(f"  built {build_workbook(out_dir, Path('excel/ecommerce_kpis.xlsx'))}")
         print(f"  built {build_dashboard(out_dir, Path('dashboard/index.html'))}")
         for table in ["fact_sales", "dim_customer", "dim_product", "dim_date", "dim_payment_method"]:

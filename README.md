@@ -61,6 +61,7 @@ tooltips and table views. Open it in any browser. (It is a lightweight HTML prev
 | **Excel** | `make run` writes `excel/ecommerce_kpis.xlsx` | Summary sheet with live formulas (`SUM`, margin, AOV), one sheet per KPI with native Excel charts, and a cohort-retention heatmap (conditional formatting) |
 | **Streamlit** | `make run` then `make app` | Interactive app (month-range slider, tabs, Plotly charts) reading `output/*.csv`; installs the extra `requirements-app.txt` |
 | **HTML** | `dashboard/index.html` | Static page, no install |
+| **Power BI** | [`powerbi/`](powerbi/README.md) | Model assets only: star-schema CSVs, Power Query, 26 DAX measures, theme, build guide and `expected_values.csv` to verify the DAX. **The `.pbix` is not included** (Power BI Desktop is Windows-only) |
 
 ![Streamlit app](docs/streamlit.png)
 

@@ -6,3 +6,4 @@ data/
 output/
 *.duckdb
 *.duckdb.wal
+powerbi/data/
