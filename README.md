@@ -52,6 +52,16 @@ tooltips and table views. Open it in any browser. (It is a lightweight HTML prev
 
 ![E-commerce dashboard](docs/dashboard.png)
 
+## More ways to view the results
+
+| Tool | How | What you get |
+|---|---|---|
+| **Excel** | `make run` writes `excel/ecommerce_kpis.xlsx` | Summary sheet with live formulas (`SUM`, margin, AOV), one sheet per KPI with native Excel charts, and a cohort-retention heatmap (conditional formatting) |
+| **Streamlit** | `make run` then `make app` | Interactive app (month-range slider, tabs, Plotly charts) reading `output/*.csv`; installs the extra `requirements-app.txt` |
+| **HTML** | `dashboard/index.html` | Static page, no install |
+
+![Streamlit app](docs/streamlit.png)
+
 ## Data quality checks (`src/ecommerce/quality.py`)
 
 49 checks run after the load; **any failure raises `DataQualityError` and the pipeline exits non-zero** (so CI fails).
@@ -115,6 +125,6 @@ Home & Kitchen,1648301.44,10.1
 ## Layout
 
 ```
-src/ecommerce/   generate_data, etl, quality, export, dashboard     sql/   staging, star schema, analytics
+src/ecommerce/   generate_data, etl, quality, export, excel, dashboard     sql/   staging, star schema, analytics
 src/pipeline.py  end-to-end entry point                   tests/ pytest suite
 ```

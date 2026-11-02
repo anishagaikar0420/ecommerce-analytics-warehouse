@@ -126,3 +126,14 @@ def test_dashboard_html_is_self_contained(tmp_path):
     html = build_dashboard(tmp_path / "out", tmp_path / "dash" / "index.html").read_text()
     assert "__DATA__" not in html and "const D=" in html
     assert "http://" not in html.replace("http://www.w3.org/2000/svg", "")  # no external resources
+
+
+def test_excel_workbook_has_formulas_and_native_charts(tmp_path):
+    import zipfile
+    from src.ecommerce.excel import build_workbook
+    run(tmp_path / "raw", tmp_path / "w.duckdb", tmp_path / "out")
+    path = build_workbook(tmp_path / "out", tmp_path / "k.xlsx")
+    z = zipfile.ZipFile(path)
+    names = z.namelist()
+    assert sum(n.startswith("xl/charts/chart") for n in names) >= 6
+    assert any("SUM(Monthly!B2" in z.read(n).decode() for n in names if n.startswith("xl/worksheets/sheet1"))
