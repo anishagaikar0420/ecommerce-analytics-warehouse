@@ -76,30 +76,30 @@ payment method mix, cancellation/return rate, repeat purchase rate, top customer
 Run `make run`:
 
 ```
-Generating synthetic raw data: {'customers': 42000, 'products': 150, 'orders': 60100, 'order_items': 115112, 'payments': 55767}
+Generating synthetic raw data: {'customers': 42000, 'products': 150, 'orders': 60100, 'order_items': 114455, 'payments': 55837}
 Built staging + star schema in 0.25s
 Data quality: 49/49 checks passed
   exported output/monthly_revenue.csv (24 rows)
   ...
-  fact_sales: 115112 rows
+  fact_sales: 114455 rows
 ```
 
 `output/customer_cohort_retention.csv`
 
 ```
 cohort_month,months_since_first,active_customers,retention_pct
-2023-01,0,227,100.0
-2023-01,1,43,18.9
-2023-01,2,34,15.0
+2023-01,0,197,100.0
+2023-01,1,38,19.3
+2023-01,2,35,17.8
 ```
 
 `output/revenue_by_category.csv`
 
 ```
 category,revenue,pct_of_revenue
-Electronics,9469749.57,57.6
-Sports,2726655.37,16.6
-Home & Kitchen,1667856.87,10.1
+Electronics,9435895.57,57.7
+Sports,2705569.69,16.6
+Home & Kitchen,1648301.44,10.1
 ```
 
 ## Design decisions
